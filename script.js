@@ -2,18 +2,34 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ---------- 1. Auto Dark/Light Mode ----------
+    // ---------- 1. Persistent Dark/Light Mode ----------
+    const htmlEl = document.documentElement;
+    const savedTheme = localStorage.getItem('theme');
+
     const applyTheme = (isDark) => {
-        document.documentElement.classList.toggle('dark', isDark);
+        htmlEl.classList.toggle('dark', isDark);
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
     };
 
-    // Initial theme based on system preference
-    applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (savedTheme) {
+        applyTheme(savedTheme === 'dark');
+    } else {
+        // Initial theme based on system preference
+        applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        applyTheme(e.matches);
+        if (!savedTheme) applyTheme(e.matches);
     });
+
+    // Toggle button
+    const toggleBtn = document.querySelector('[data-toggle-theme]');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            applyTheme(!htmlEl.classList.contains('dark'));
+        });
+    }
 
     // ---------- 2. Parallax Effect ----------
     const parallaxElements = document.querySelectorAll('.parallax');
@@ -54,12 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
     // ---------- 5. Floating Animation for Cards ----------
-    function addFloatingAnimation() {
-        document.querySelectorAll('.skill-card, .project-card').forEach((el, index) => {
+    const addFloatingAnimation = () => {
+        document.querySelectorAll('.skill-card, .project-card, .liquid-card').forEach((el, index) => {
             el.style.animationDelay = `${index * 0.1}s`;
             el.classList.add('animate-float');
         });
-    }
+    };
     addFloatingAnimation();
 });
 
